@@ -14,6 +14,9 @@ var (
 func main() {
 	flag.Parse()
 	for _, fn := range flag.Args() {
+		if fn == "-" {
+			fn = "/dev/stdin"
+		}
 		fmt.Fprintf(os.Stderr, "formatting %s\n", fn)
 		f, err := os.Open(fn)
 		dieIf(err)
@@ -21,7 +24,7 @@ func main() {
 		json.NewDecoder(f).Decode(&v)
 		f.Close()
 		j, _ := json.MarshalIndent(v, "", "\t")
-		if *inPlace {
+		if *inPlace && fn != "/dev/stdin" {
 			f, err = os.Create(fn)
 			dieIf(err)
 			fmt.Fprintf(f, "%s\n", j)
